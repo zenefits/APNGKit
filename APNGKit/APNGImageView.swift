@@ -40,7 +40,11 @@ open class APNGImageView: UIView {
             let animating = isAnimating
             stopAnimating()
 
-            let firstFrame = (image?.frameCount)! > 0 ? image?.frameAt(index: 0) : nil
+            var firstFrame : SharedFrame?;
+            let frameCount = image?.frameCount
+            if frameCount != nil && frameCount! > 0 {
+                firstFrame = image?.frameAt(index: 0)
+            }
             updateContents(frame: firstFrame)
             if animating {
                 startAnimating()
