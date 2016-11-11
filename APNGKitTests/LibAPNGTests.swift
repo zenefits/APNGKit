@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/27.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -52,7 +52,7 @@ class LibAPNGTests: XCTestCase {
     
     func testPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }

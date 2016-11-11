@@ -31,7 +31,7 @@ import UIKit
 /// `APNGImage` can hold an APNG image or a regular PNG image. If latter, there will be only one frame in the image.
 public class AsyncAPNGImage: NSObject, APNGImageProtocol { // For ObjC compatibility
     public func frameAt(index: Int) -> SharedFrame {
-        return frameList.waitForFrame(index)
+        return frameList.waitForFrame(index: index)
     }
     
     public var frameCount: Int {
@@ -40,7 +40,7 @@ public class AsyncAPNGImage: NSObject, APNGImageProtocol { // For ObjC compatibi
     
     /// Size of the image in point. The scale factor is considered.
     public var size: CGSize {
-        return CGSizeMake(internalSize.width / scale, internalSize.height / scale)
+        return CGSize(width: internalSize.width / scale, height: internalSize.height / scale)
     }
     
     /// Scale of the image.
@@ -63,7 +63,7 @@ public class AsyncAPNGImage: NSObject, APNGImageProtocol { // For ObjC compatibi
     // So we could share the bytes in it between two "same" APNG image objects.
     private let internalSize: CGSize // size in pixel
     
-    static var searchBundle: NSBundle = NSBundle.mainBundle()
+    static var searchBundle: Bundle = Bundle.main
     
     init(frameList: Disassembler.AsyncFrameList, size: CGSize, scale: CGFloat, bitDepth: Int, repeatCount: Int, firstFrameHidden hidden: Bool, numFramesToBuffer: Int) {
         self.frameList = frameList
@@ -134,9 +134,9 @@ public class AsyncAPNGImage: NSObject, APNGImageProtocol { // For ObjC compatibi
      - returns: A new image object for the specified data, or nil if the method could not initialize the image from the specified data.
      */
     public convenience init?(data: NSData, scale: CGFloat, numFramesToBuffer: Int = 5) {
-        let disassembler = Disassembler(data: data)
+        let disassembler = Disassembler(data: data as Data)
         do {
-            let (frameList, size, repeatCount, bitDepth, firstFrameHidden) = try disassembler.decodeToElementsAsync(scale, numFramesToBuffer: numFramesToBuffer)
+            let (frameList, size, repeatCount, bitDepth, firstFrameHidden) = try disassembler.decodeToElementsAsync(scale: scale, numFramesToBuffer: numFramesToBuffer)
             self.init(frameList: frameList, size: size, scale: scale, bitDepth: bitDepth, repeatCount: repeatCount, firstFrameHidden: firstFrameHidden, numFramesToBuffer: numFramesToBuffer)
         } catch _ {
             return nil
@@ -162,7 +162,7 @@ public class AsyncAPNGImage: NSObject, APNGImageProtocol { // For ObjC compatibi
     public convenience init?(contentsOfFile path: String, numFramesToBuffer: Int = 5) {
         
         if let data = NSData(contentsOfFile: path) {
-            let fileName = (path as NSString).stringByDeletingPathExtension
+            let fileName = (path as NSString).deletingPathExtension
             
             var scale: CGFloat = 1
             if fileName.hasSuffix("@2x") {
@@ -185,9 +185,10 @@ public class AsyncAPNGImage: NSObject, APNGImageProtocol { // For ObjC compatibi
 
 extension AsyncAPNGImage {
     override public var description: String {
-        var s = "<AsyncAPNGImage: \(unsafeAddressOf(self))> size: \(size), frameCount: \(frameList.frameCount), repeatCount: \(repeatCount)\n"
+        var s = "<AsyncAPNGImage: \(Unmanaged.passUnretained(self).toOpaque())> size: \(size), frameCount: \(frameList.frameCount), repeatCount: \(repeatCount)\n"
         s += "["
         s += "]"
         return s
     }
+    
 }

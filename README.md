@@ -33,7 +33,15 @@ APNG is such a nice format to bring users much better experience of animating im
 
 ## Installation
 
-This framework requires iOS 7.0 at least. If you want to use it as a dynamic framework (install from CocoaPods or Carthage, in other words), you need a deploy target of iOS 8.0 or above. Since it is written in Swift 2, you will need to use Xcode 7 or above to make it work. Although it is written in Swift, the compatibility with Objective-C is also considered.
+### Requirement
+
+iOS 7.0+ for using as submodule.
+iOS 8.0+ for using as dynamic framework (install from CocoaPods or Carthage, in other words)
+
+Swift 3 and Xcode 8 for version 0.3.0 or later.
+Swift 2 and Xcode 7 for version 0.2.2.
+
+Although it is written in Swift, the compatibility with Objective-C is also considered.
 
 ### CocoaPods
 
@@ -52,7 +60,9 @@ source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '8.0'
 use_frameworks!
 
-pod 'APNGKit', '~> 0.1'
+target 'your_app' do
+  pod 'APNGKit', '~> 0.3'
+end
 ```
 
 Then, run the following command:
@@ -77,7 +87,7 @@ $ brew install carthage
 To integrate APNGKit into your Xcode project using Carthage, specify it in your `Cartfile`:
 
 ```ogdl
-github "onevcat/APNGKit" >= 0.1
+github "onevcat/APNGKit" ~> 0.3
 ```
 
 Then, run the following command to build the APNGKit framework:
@@ -209,10 +219,6 @@ Currently APNGKit can only load and display APNG files or data. There is a plan 
 
 And maybe some callbacks of APNG animation playing or even more controlling of playing will be added later as well. IBDesignable support is also in plan.
 
-## FAQ & Contact
-
-Please see this [wiki page](https://github.com/onevcat/Kingfisher/wiki/FAQ) for more. If you find a problem when using this framework, do not hesitate to open an issue or send a pull-request. You can also contact me @onevcat.
-
 ## Acknowledgement
 
 APNGKit is built on top of a [modified version of libpng](https://github.com/onevcat/libpng). The original libpng could be found [here](http://www.libpng.org/pub/png/libpng.html). I patched it for APNG supporting based on code in [this project](http://sourceforge.net/p/libpng-apng/code/ci/master/tree/).
@@ -235,3 +241,5 @@ APNGKit can only load and display APNG image now. The creating feature will be d
 ## License
 
 APNGKit is released under the MIT license. See LICENSE for details.
+
+

@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/30.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,43 +30,43 @@ import APNGKit
 class DetailViewController: UIViewController {
 
     var image: Image?
-    
+
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var timingLabel: UILabel!
-    
+
     @IBOutlet weak var imageView: APNGImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         // Do any additional setup after loading the view.
         if let path = image?.path {
-            
+
             let start = CACurrentMediaTime()
             let apngImage: APNGImageProtocol?
-            
+
             let async = true
             if async {
-                if path.containsString("@2x") {
+                if path.contains("@2x") {
                     apngImage = AsyncAPNGImage(named: (path as NSString).lastPathComponent)
                 } else {
                     apngImage = AsyncAPNGImage(contentsOfFile: path)
                 }
             } else {
-                if path.containsString("@2x") {
+                if path.contains("@2x") {
                     apngImage = APNGImage(named: (path as NSString).lastPathComponent)
                 } else {
                     apngImage = APNGImage(contentsOfFile: path, saveToCache: true)
                 }
             }
             let end = CACurrentMediaTime()
-                
-            
+
+
             imageView.image = apngImage
             imageView.startAnimating()
-            
+
             timingLabel.text = "Loaded in: \((end - start) * 1000)ms"
             textLabel.text = image!.description
-                
+
             title = (path as NSString).lastPathComponent
         }
     }
@@ -75,7 +75,7 @@ class DetailViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
+
 
     /*
     // MARK: - Navigation

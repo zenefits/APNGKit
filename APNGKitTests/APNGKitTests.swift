@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/27.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -42,9 +42,9 @@ class APNGKitTests: XCTestCase {
     func testExample() {
         // This is an example of a functional test case.
         // Use XCTAssert and related functions to verify your tests produce the correct results.
-        let s = NSInputStream(data: redDotPNGData)
+        let s = InputStream(data: redDotPNGData as Data)
         s.open()
-        var buffer = Array<UInt8>(count: 12, repeatedValue: 0)
+        var buffer = Array<UInt8>(repeating: 0, count: 12)
         s.read(&buffer, maxLength: 8)
         print(buffer)
         s.close()
@@ -52,7 +52,7 @@ class APNGKitTests: XCTestCase {
     
     func testPerformanceExample() {
         // This is an example of a performance test case.
-        self.measureBlock {
+        self.measure {
             // Put the code you want to measure the time of here.
         }
     }

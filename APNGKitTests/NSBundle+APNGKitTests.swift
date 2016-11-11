@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/30.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,8 @@
 
 import Foundation
 
-extension NSBundle {
-    static var testBundle: NSBundle {
-        return NSBundle(forClass: APNGKitTests.self)
+extension Bundle {
+    static var testBundle: Bundle {
+        return Bundle(for: APNGKitTests.self)
     }
 }
