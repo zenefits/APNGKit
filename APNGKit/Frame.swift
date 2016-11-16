@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/27.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,19 +29,19 @@ import UIKit
 public class SharedFrame: UIImage {
     static var allocatedCount: Int = 0
     static var deallocatedCount: Int = 0
-    
-    init(bytes: UnsafeMutablePointer<UInt8>, length: Int, duration: NSTimeInterval) {
+
+    init(bytes: UnsafeMutablePointer<UInt8>, length: Int, duration: TimeInterval) {
         self.bytes = bytes
         self.length = length
         self._duration = duration
         super.init()
     }
-    
-    init(CGImage: CGImageRef, scale: CGFloat, bytes: UnsafeMutablePointer<UInt8>, length: Int, duration: NSTimeInterval) {
+
+    init(CGImage: CGImage, scale: CGFloat, bytes: UnsafeMutablePointer<UInt8>, length: Int, duration: TimeInterval) {
         self.bytes = bytes
         self.length = length
         self._duration = duration
-        super.init(CGImage: CGImage, scale: scale, orientation: .Up)
+        super.init(cgImage: CGImage, scale: scale, orientation: .up)
     }
 
     required convenience public init(imageLiteral name: String) {
@@ -52,16 +52,20 @@ public class SharedFrame: UIImage {
         fatalError("init(coder:) has not been implemented")
     }
     
+    required convenience public init(imageLiteralResourceName name: String) {
+        fatalError("init(imageLiteralResourceName:) has not been implemented")
+    }
+
     let length: Int
     let bytes: UnsafeMutablePointer<UInt8>?
-    let _duration: NSTimeInterval
-    public override var duration: NSTimeInterval {
+    let _duration: TimeInterval
+    public override var duration: TimeInterval {
         return _duration
     }
-    
+
     deinit {
-        bytes?.destroy(length)
-        bytes?.dealloc(length)
+        bytes?.deinitialize(count: length)
+        bytes?.deallocate(capacity: length)
     }
 }
 
@@ -70,49 +74,57 @@ public class SharedFrame: UIImage {
 *  It contains a whole IDAT chunk data for a PNG image.
 */
 struct Frame {
+    
+    var image: UIImage?
+    
     /// Data chunk.
     var bytes: UnsafeMutablePointer<UInt8>
-    
+
     /// An array of raw data row pointer. A decoder should fill this area with image raw data.
-    lazy var byteRows: Array<UnsafeMutablePointer<UInt8>> = {
-        var array = Array<UnsafeMutablePointer<UInt8>>()
-        
+    lazy var byteRows: Array<UnsafeMutableRawPointer> = {
+        var array = Array<UnsafeMutableRawPointer>()
+
         let height = self.length / self.bytesInRow
         for i in 0 ..< height {
-            let pointer = self.bytes.advancedBy(i * self.bytesInRow)
+            let pointer = self.bytes.advanced(by: i * self.bytesInRow)
             array.append(pointer)
         }
         return array
     }()
-    
+
     let length: Int
-    
+
     /// How many bytes in a row. Regularly it is width * (bitDepth / 2)
     let bytesInRow: Int
-    
-    var duration: NSTimeInterval = 0
-    
+
+    var duration: TimeInterval = 0
+
     init(length: UInt32, bytesInRow: UInt32) {
         self.length = Int(length)
         self.bytesInRow = Int(bytesInRow)
-        
-        self.bytes = UnsafeMutablePointer<UInt8>.alloc(self.length)
-        self.bytes.initialize(0)
+
+        self.bytes = UnsafeMutablePointer<UInt8>.allocate(capacity: self.length)
+        self.bytes.initialize(to: 0)
         memset(self.bytes, 0, self.length)
     }
-    
+
     func clean() {
-        bytes.destroy(length)
-        bytes.dealloc(length)
+        bytes.deinitialize(count: length)
+        bytes.deallocate(capacity: length)
     }
-    
+
     var sharedFrame: SharedFrame?
     mutating func createSharedFrame(width: Int, height: Int, bits: Int, scale: CGFloat) -> SharedFrame {
-        let provider = CGDataProviderCreateWithData(nil, bytes, length, nil)
+        // http://stackoverflow.com/a/39612298
+        let releaseMaskImagePixelData: CGDataProviderReleaseDataCallback = { (info: UnsafeMutableRawPointer?, data: UnsafeRawPointer, size: Int) -> () in
+            return
+        }
         
-        if let imageRef = CGImageCreate(width, height, bits, bits * 4, bytesInRow, CGColorSpaceCreateDeviceRGB(),
-            [CGBitmapInfo.ByteOrder32Big, CGBitmapInfo(rawValue: CGImageAlphaInfo.Last.rawValue)],
-            provider, nil, false, .RenderingIntentDefault)
+        let provider = CGDataProvider(dataInfo: nil, data: bytes, size: length, releaseData: releaseMaskImagePixelData)
+
+        if let imageRef = CGImage(width: width, height: height, bitsPerComponent: bits, bitsPerPixel: bits * 4, bytesPerRow: bytesInRow, space: CGColorSpaceCreateDeviceRGB(),
+                                  bitmapInfo: [CGBitmapInfo.byteOrder32Big, CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue)],
+                                  provider: provider!, decode: nil, shouldInterpolate: false, intent: .defaultIntent)
         {
             sharedFrame = SharedFrame.init(CGImage: imageRef, scale: scale, bytes: bytes, length: length, duration: duration)
             return sharedFrame!
@@ -121,10 +133,38 @@ struct Frame {
             return sharedFrame!
         }
     }
+
+    mutating func updateCGImageRef(_ width: Int, height: Int, bits: Int, scale: CGFloat, blend: Bool) {
+        let unusedCallback: CGDataProviderReleaseDataCallback = { optionalPointer, pointer, valueInt in }
+        guard let provider = CGDataProvider(dataInfo: nil, data: bytes, size: length, releaseData: unusedCallback) else {
+            return
+        }
+
+        if let imageRef = CGImage(width: width, height: height, bitsPerComponent: bits, bitsPerPixel: bits * 4, bytesPerRow: bytesInRow, space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: [CGBitmapInfo.byteOrder32Big, CGBitmapInfo(rawValue: blend ? CGImageAlphaInfo.premultipliedLast.rawValue : CGImageAlphaInfo.last.rawValue)],
+                        provider: provider, decode: nil, shouldInterpolate: false, intent: .defaultIntent)
+        {
+            image = UIImage(cgImage: imageRef, scale: scale, orientation: .up)
+        }
+    }
 }
 
 extension Frame: CustomStringConvertible {
     var description: String {
         return "<Frame: \(self.bytes)))> duration: \(self.duration), length: \(length)"
+    }
+}
+
+extension Frame: CustomDebugStringConvertible {
+
+    var data: Data? {
+        if let image = image {
+           return UIImagePNGRepresentation(image)
+        }
+        return nil
+    }
+
+    var debugDescription: String {
+        return "\(description)\ndata: \(data)"
     }
 }

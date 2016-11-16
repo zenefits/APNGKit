@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/30.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -32,18 +32,18 @@ class APNGImageCacheTests: XCTestCase {
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
-        APNGImage.searchBundle = NSBundle.testBundle
+        APNGImage.searchBundle = Bundle.testBundle
         APNGCache.defaultCache.clearMemoryCache()
     }
     
     override func tearDown() {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
-        APNGImage.searchBundle = NSBundle.mainBundle()
+        APNGImage.searchBundle = Bundle.main
         super.tearDown()
     }
     
     func testImageShouldBeCached() {
-        let key = NSBundle.testBundle.pathForResource("ball", ofType: "apng")
+        let key = Bundle.testBundle.path(forResource: "ball", ofType: "apng")
         XCTAssertNil(APNGCache.defaultCache.imageForKey(key!), "The ball image should not be cached in memory.")
         
         let image = APNGImage(named: "ball")
@@ -52,7 +52,7 @@ class APNGImageCacheTests: XCTestCase {
     }
     
     func testImageShouldNotBeCache() {
-        let key = NSBundle.testBundle.pathForResource("ball", ofType: "apng")
+        let key = Bundle.testBundle.path(forResource: "ball", ofType: "apng")
         XCTAssertNil(APNGCache.defaultCache.imageForKey(key!), "The ball image should not be cached in memory.")
 
         let image = APNGImage(contentsOfFile: key!)

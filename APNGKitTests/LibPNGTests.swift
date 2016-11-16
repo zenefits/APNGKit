@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/27.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,11 +29,11 @@ import XCTest
 @testable import APNGKit.png
 
 // Reading callback for libpng
-func readData(png_ptr: png_structp, outBytes: png_bytep, byteCountToRead: png_size_t) {
+func readData(_ png_ptr: png_structp, outBytes: png_bytep, byteCountToRead: png_size_t) {
     let io_ptr = png_get_io_ptr(png_ptr)
-    var reader = UnsafePointer<Reader>(io_ptr).memory
+    var reader = UnsafeRawPointer(io_ptr)!.load(as: Reader.self)
     
-    reader.read(outBytes, bytesCount: byteCountToRead)
+    _ = reader.read(outBytes, bytesCount: byteCountToRead)
 }
 
 class LibPNGTests: XCTestCase {

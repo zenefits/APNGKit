@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/27.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -55,7 +55,7 @@ class ReaderTests: XCTestCase {
     }
     
     func testReaderWithBuffer() {
-        var ptr = [UInt8](count: 8, repeatedValue: 0)
+        var ptr = [UInt8](repeating: 0, count: 8)
         var reader = Reader(data: redDotPNGData, maxBuffer: 0)
         var count = 0
         

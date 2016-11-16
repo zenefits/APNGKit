@@ -4,7 +4,7 @@
 //
 //  Created by Wei Wang on 15/8/27.
 //
-//  Copyright (c) 2015 Wei Wang <onevcat@gmail.com>
+//  Copyright (c) 2016 Wei Wang <onevcat@gmail.com>
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -39,7 +39,7 @@ class Fundamental_Tests: XCTestCase {
     }
     
     func testMinimalPNG() {
-        let image = UIImage(data: redDotPNGData)
+        let image = UIImage(data: redDotPNGData as Data)
         XCTAssertNotNil(image, "The minimal image should not be nil")
         XCTAssertEqual(image!.size, CGSize(width: 1, height: 1), "The size of image should be 1 * 1")
     
